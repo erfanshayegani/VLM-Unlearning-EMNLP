@@ -19,7 +19,7 @@ import pandas as pd
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))  # repo root
 from model_utils import get_bnb_config, load_llava, load_processor  # noqa: E402
-from paths import FIGSTEP_IMAGES_DIR, JBPIECES_IMAGES_DIR, VQA_HF_DATASET  # noqa: E402
+from multimodal_utils import load_vqa_subset  # noqa: E402
 
 from Inference_Utils import batch_generate_response  # noqa: E402  (batch generation helper)
 
@@ -44,9 +44,8 @@ def main(args) -> None:
     ########################
     logging.info("VQA Validation Set Benchmark")   
 
-    vqa_dataset = load_dataset(VQA_HF_DATASET, split="validation[:20000]") # 400 prompts # 86400
-    vqa_dataset_prompts = vqa_dataset['question']
-    vqa_images = vqa_dataset['image_id']
+    # first 520 VQA-v2 validation examples (lmms-lab/VQAv2, first parquet shard)
+    vqa_dataset_prompts, vqa_images = load_vqa_subset()
 
     start_time = time.time()
 
@@ -55,10 +54,10 @@ def main(args) -> None:
     total_prompts = []
     instruction_prompt = "Answer the question using a single word or phrase. "
 
-    for i in range(0,4000): # Number of Batches 
+    Num = 5 # Batch Size
+    for i in range(0, (len(vqa_dataset_prompts) + Num - 1) // Num): # Number of Batches
         logging.info(f"{i}th batch started!")
         s = time.time() 
-        Num = 5 # Batch Size
         batch_prompts = [f"### Question:<image>\n {instruction_prompt}{question}\n ### Answer:" for question in vqa_dataset_prompts[i * Num : (i+1) * (Num)]]
         total_prompts += batch_prompts
 

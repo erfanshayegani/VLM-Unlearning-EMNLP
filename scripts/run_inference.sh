@@ -25,4 +25,4 @@ run () {  # $1 = benchmark directory
 run JBPieces   # ~15 min  (needs restricted images, see data/README.md)
 run PKU_RLHF   # ~30 min
 run Figstep    # ~4 h
-run VQA        # ~16 h
+run VQA        # 520 VQA-v2 validation examples

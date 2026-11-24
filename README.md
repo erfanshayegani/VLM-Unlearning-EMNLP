@@ -23,8 +23,8 @@ All methods train a LoRA adapter on the language model of a 4-bit (NF4) quantize
 | Method | Script | Harmful (forget) data | Normal (retain) data |
 |---|---|---|---|
 | Textual unlearning | `unlearn_harm_VLM.py` | PKU-SafeRLHF (text) | TruthfulQA (text) |
-| Multi-modal unlearning | `multimodal-unlearn_harm_VLM.py` | JailBreakV-28K or FigStep (image+text) | VQA-v2 (image+text) |
-| Multi-modal SFT | `multimodal-SFT_harm_VLM.py` | JailBreakV-28K or FigStep mapped to a refusal | VQA-v2 (image+text) |
+| Multi-modal unlearning | `multimodal-unlearn_harm_VLM.py` | JailBreakV-28K or FigStep (image+text) | VQA-v2, 520 examples (image+text) |
+| Multi-modal SFT | `multimodal-SFT_harm_VLM.py` | JailBreakV-28K or FigStep mapped to a refusal | VQA-v2, 520 examples (image+text) |
 | Text-only LLM unlearning (reference) | `unlearn_harm.py` | PKU-SafeRLHF | TruthfulQA |
 
 Unlearning loss = gradient ascent on harmful answers + KL divergence to the original model on
@@ -45,7 +45,7 @@ Supported models: `llava-hf/llava-1.5-7b-hf` and `llava-hf/llava-v1.6-mistral-7b
 ├── paths.py                         # all data locations (overridable via env vars)
 ├── inference/                       # response generation on the 4 benchmarks
 │   ├── PKU_RLHF/   ├── VQA/   ├── Figstep/   └── JBPieces/
-├── evaluation/evaluate.py           # reward model, Detoxify, Perspective API scoring
+├── evaluation/evaluate.py           # reward model (OpenAssistant / Skywork), Detoxify, Perspective API
 ├── scripts/train.sh                 # training commands
 ├── scripts/run_inference.sh         # run all benchmarks for one adapter
 └── data/README.md                   # how to obtain every dataset
@@ -61,11 +61,11 @@ wget -P data/ https://raw.githubusercontent.com/sylinrl/TruthfulQA/main/Truthful
 ```
 
 > Pinned versions matter: recent `transformers` releases changed how LLaVA inserts image
-> tokens, and recent `datasets` releases no longer support script-based datasets.
-> See `requirements.txt`.
+> tokens. See `requirements.txt`.
 >
-> **VQA-v2:** the `Graphcore/vqa` copy we used has since been removed from the Hugging Face Hub.
-> See [data/README.md](data/README.md) for how to substitute it.
+> **VQA-v2** is loaded from [`lmms-lab/VQAv2`](https://huggingface.co/datasets/lmms-lab/VQAv2):
+> the first 520 validation examples, read from the first parquet shard only (~90 MB), so the full
+> dataset is not downloaded.
 
 Then get the other datasets as described in **[data/README.md](data/README.md)**.
 
@@ -99,6 +99,9 @@ bash scripts/run_inference.sh models/llava1.5-7b_text_unlearned text_unlearn
 
 # Score them
 python evaluation/evaluate.py --csv inference/VQA/output_CSVs/text_unlearn_VQA.csv --metrics reward
+# reward model: OpenAssistant/reward-model-deberta-v3-large-v2 by default; Skywork is also supported
+python evaluation/evaluate.py --csv inference/VQA/output_CSVs/text_unlearn_VQA.csv --metrics reward \
+    --reward_model Skywork/Skywork-Reward-Llama-3.1-8B-v0.2   # needs transformers>=4.43 (separate env)
 export PERSPECTIVE_API_KEY=...   # optional
 python evaluation/evaluate.py --csv inference/Figstep/output_CSVs/text_unlearn_Figstep.csv --metrics detoxify perspective
 ```

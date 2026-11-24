@@ -18,9 +18,26 @@ from paths import (
     FIGSTEP_RESPONSES_CSV,
     JAILBREAKV_RESPONSES_CSV,
     JAILBREAKV_ROOT,
+    VQA_DATA_FILES,
     VQA_HF_DATASET,
+    VQA_NUM_EXAMPLES,
     VQA_RESPONSES_CSV,
 )
+
+
+def load_vqa_subset(num_examples=VQA_NUM_EXAMPLES):
+    """First `num_examples` VQA-v2 validation examples (lmms-lab/VQAv2, first parquet shard).
+
+    Returns (questions, images) where images are RGB PIL images.
+    """
+    vqa_dataset = load_dataset(
+        VQA_HF_DATASET,
+        data_files={"validation": VQA_DATA_FILES},
+        split=f"validation[:{num_examples}]",
+    )
+    questions = vqa_dataset["question"]
+    images = [img.convert("RGB") for img in vqa_dataset["image"]]
+    return questions, images
 
 torch.manual_seed(8888)
 np.random.seed(8888)
@@ -29,17 +46,14 @@ random.seed(8888)
 
 def create_normal_dataloader(processor, batch_size = 2):
 
-    vqa_dataset = load_dataset(VQA_HF_DATASET, split="validation[:4000]")
-    vqa_prompts = vqa_dataset['question']
-    vqa_images = vqa_dataset['image_id']
+    vqa_prompts, vqa_images = load_vqa_subset() # first 520 VQA-v2 validation examples
 
     vqa_response_file = VQA_RESPONSES_CSV
     vqa_responses = pd.read_csv(vqa_response_file)['VQA Pretrained Response']
 
     data = {"input_ids": [], "attention_mask": [], "pixel_values": []}
 
-    for image_file, prompt, response in zip(vqa_images, vqa_prompts, vqa_responses):
-        raw_image = Image.open(image_file)
+    for raw_image, prompt, response in zip(vqa_images, vqa_prompts, vqa_responses):
         text_prompt = f"### Question:<image>\n {prompt}\n ### Answer: {response}"
         processed = processor(text_prompt, raw_image, return_tensors='pt', padding = True)
         data['input_ids'].append(processed['input_ids'][0].tolist())
@@ -365,7 +379,7 @@ at the start of each new epoch, the batches are shuffled.
 for now, I'm using:
 
 harmful data: Figstep, 500 instances
-normal data: VQA, 4000 instances
+normal data: VQA, 520 instances
 
 total data: 4500
 if batch size = 2 -> 2250 batches
@@ -409,17 +423,14 @@ def create_sft_dataloader(processor, batch_size = 2):
     # )
     ###############################
     # Benign part of the dataloader for utility preservation of the model
-    vqa_dataset = load_dataset(VQA_HF_DATASET, split="validation[:4000]") # 4000 instances 
-    vqa_prompts = vqa_dataset['question']
-    vqa_images = vqa_dataset['image_id']
+    vqa_prompts, vqa_images = load_vqa_subset() # first 520 VQA-v2 validation examples
 
     vqa_response_file = VQA_RESPONSES_CSV
     vqa_responses = pd.read_csv(vqa_response_file)['VQA Pretrained Response']
     
     # data = {"input_ids": [], "attention_mask": [], "pixel_values": [], "start_locs" : []}
 
-    for image_file, prompt, response in zip(vqa_images, vqa_prompts, vqa_responses):
-        raw_image = Image.open(image_file)
+    for raw_image, prompt, response in zip(vqa_images, vqa_prompts, vqa_responses):
         text_prompt = f"### Question:<image>\n {prompt}\n ### Answer: {response}"
         processed = processor(text_prompt, raw_image, return_tensors='pt', padding = True)
         data['input_ids'].append(processed['input_ids'][0].tolist())
@@ -473,17 +484,14 @@ def create_sft_JB28k_dataloader(processor, batch_size = 2):
 
 ###############################
     # Benign part of the dataloader for utility preservation of the model
-    vqa_dataset = load_dataset(VQA_HF_DATASET, split="validation[:4000]") # 4000 instances 
-    vqa_prompts = vqa_dataset['question']
-    vqa_images = vqa_dataset['image_id']
+    vqa_prompts, vqa_images = load_vqa_subset() # first 520 VQA-v2 validation examples
 
     vqa_response_file = VQA_RESPONSES_CSV
     vqa_responses = pd.read_csv(vqa_response_file)['VQA Pretrained Response']
     
     # data = {"input_ids": [], "attention_mask": [], "pixel_values": [], "start_locs" : []}
 
-    for image_file, prompt, response in zip(vqa_images, vqa_prompts, vqa_responses):
-        raw_image = Image.open(image_file)
+    for raw_image, prompt, response in zip(vqa_images, vqa_prompts, vqa_responses):
         text_prompt = f"### Question:<image>\n {prompt}\n ### Answer: {response}"
         processed = processor(text_prompt, raw_image, return_tensors='pt', padding = True)
         data['input_ids'].append(processed['input_ids'][0].tolist())

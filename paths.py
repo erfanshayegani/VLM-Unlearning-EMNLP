@@ -11,19 +11,21 @@ DATA_DIR = os.environ.get("VLMU_DATA_DIR", os.path.join(REPO_ROOT, "data"))
 
 # --- Public data -----------------------------------------------------------------
 
-# Hugging Face dataset used for VQA-v2 (normal multi-modal data + VQA inference).
-# NOTE: `Graphcore/vqa` (used in the paper) is no longer publicly available on the Hub.
-# The code expects its schema: columns `question` and `image_id`, where `image_id` is a
-# path to a local COCO image file. See data/README.md.
-VQA_HF_DATASET = os.environ.get("VQA_HF_DATASET", "Graphcore/vqa")
+# VQA-v2 (normal multi-modal data + VQA inference): the first 520 validation examples of
+# lmms-lab/VQAv2, read from the first parquet shard only (~90 MB, images included).
+# (The paper originally used `Graphcore/vqa`, which is no longer on the Hub; its validation
+# order is identical to lmms-lab/VQAv2, so the saved responses below stay aligned.)
+VQA_HF_DATASET = os.environ.get("VQA_HF_DATASET", "lmms-lab/VQAv2")
+VQA_DATA_FILES = os.environ.get("VQA_DATA_FILES", "data/validation-00000-of-00068.parquet")
+VQA_NUM_EXAMPLES = int(os.environ.get("VQA_NUM_EXAMPLES", 520))
 
 # TruthfulQA (normal/benign text data for text-only unlearning).
 TRUTHFULQA_CSV = os.environ.get("TRUTHFULQA_CSV", os.path.join(DATA_DIR, "TruthfulQA.csv"))
 
-# Responses of the original LLaVA-1.5-7B on the first 4000 VQA-v2 validation questions
-# (Graphcore/vqa). Used as "normal" targets for the KL term in multimodal unlearning / SFT.
+# Responses of the original LLaVA-1.5-7B to the first 520 VQA-v2 validation questions
+# (row i <-> validation example i). Used as "normal" targets in multimodal unlearning / SFT.
 VQA_RESPONSES_CSV = os.environ.get(
-    "VQA_RESPONSES_CSV", os.path.join(DATA_DIR, "vqa_val4000_llava1.5-7b_responses.csv")
+    "VQA_RESPONSES_CSV", os.path.join(DATA_DIR, "vqa_val520_llava1.5-7b_responses.csv")
 )
 
 # FigStep typographic images (SafeBench, 500 images) from the official FigStep repo.

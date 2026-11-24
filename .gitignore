@@ -16,4 +16,4 @@ wandb/
 # datasets (see data/README.md)
 data/*
 !data/README.md
-!data/vqa_val4000_llava1.5-7b_responses.csv
+!data/vqa_val520_llava1.5-7b_responses.csv
