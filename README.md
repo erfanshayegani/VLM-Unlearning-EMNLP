@@ -10,6 +10,12 @@ by Trishna Chakraborty\*, Erfan Shayegani\*, Zikui Cai, Nael Abu-Ghazaleh, M. Sa
 
 ## Overview
 
+<p align="center">
+  <img src="assets/figure1.png" alt="Figure 1: overview of multi-modal SFT, multi-modal unlearning and textual unlearning" width="90%">
+</p>
+
+*Figure 1. **(A)** The three settings we compare: multi-modal SFT, multi-modal unlearning and textual unlearning. In every case only the LLM is updated and the rest of the VLM is frozen. Textual unlearning beats the other two in both effectiveness and compute. **(B)** Added modalities greatly expand the input embedding space, so some inputs are likely to slip past SFT defenses. Textual unlearning instead changes the LLM's language modeling objective so it avoids harmful content in the presence of harmful context, whatever the input modality.*
+
 Vision-language models (VLMs) inherit their language model's safety alignment, but new
 modalities (images) open new attack surfaces: cross-modality jailbreaks. We study whether
 **unlearning on text only**, applied to the LLM inside the VLM, carries over to
