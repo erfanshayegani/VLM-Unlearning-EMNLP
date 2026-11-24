@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.DS_Store
+__MACOSX/
+.env
+
+# experiment outputs
+logs/
+models/
+inference/*/logs/
+inference/*/output_CSVs/
+*.log
+wandb/
+
+# datasets (see data/README.md)
+data/*
+!data/README.md
+!data/vqa_val4000_llava1.5-7b_responses.csv

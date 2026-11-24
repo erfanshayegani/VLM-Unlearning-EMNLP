@@ -1,0 +1,19 @@
+# Versions used for the paper's experiments (Python 3.10, CUDA 11.8).
+# NOTE: transformers was installed separately and its exact version was not recorded;
+# 4.40.0 matches the rest of this stack. Avoid recent transformers releases: they expand
+# the <image> tokens inside the processor instead of inside the model, which breaks the
+# logit alignment done in multimodal_utils.revert_logits.
+torch==2.2.2
+transformers==4.40.0
+accelerate==0.29.1
+peft==0.10.0
+bitsandbytes==0.43.0
+datasets==2.18.0
+pandas==2.2.1
+numpy==1.26.4
+pillow==10.2.0
+sentencepiece==0.2.0
+protobuf==4.25.3
+# evaluation
+detoxify==0.5.2
+requests
