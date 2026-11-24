@@ -1,8 +1,8 @@
 # Can Textual Unlearning Solve Cross-Modality Safety Alignment?
 
-Official code for the EMNLP 2024 (Findings) paper
-**[Can Textual Unlearning Solve Cross-Modality Safety Alignment?](https://aclanthology.org/2024.findings-emnlp.574/)**
-by **Trishna Chakraborty\***, **Erfan Shayegani\***, Zikui Cai, Nael Abu-Ghazaleh, M. Salman Asif, Yue Dong, Amit K. Roy-Chowdhury and Chengyu Song.
+**[Can Textual Unlearning Solve Cross-Modality Safety Alignment?](https://aclanthology.org/2024.findings-emnlp.574/)** (EMNLP 2024 Findings)
+
+**Trishna Chakraborty\***, **Erfan Shayegani\***, Zikui Cai, Nael Abu-Ghazaleh, M. Salman Asif, Yue Dong, Amit K. Roy-Chowdhury, Chengyu Song
 
 <sub>\* **Co-first authors** (equal contribution).</sub>
 
